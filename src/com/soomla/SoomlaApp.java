@@ -16,13 +16,18 @@
 
 package com.soomla;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
 
 import com.soomla.events.AppToBackgroundEvent;
 
-public class SoomlaApp extends Application{
+import java.lang.ref.WeakReference;
+
+public class SoomlaApp extends Application {
+
+    private static final String TAG = SoomlaApp.class.getSimpleName();
 
 	protected static SoomlaApp mInstance = null;
 
@@ -31,6 +36,8 @@ public class SoomlaApp extends Application{
     }
 
     private Thread.UncaughtExceptionHandler defaultUEH;
+
+    private WeakReference<Activity> activityRef = new WeakReference<Activity>(null);
 
     public static Foreground ForegroundService;
 
@@ -75,5 +82,15 @@ public class SoomlaApp extends Application{
 
     private static Context context;
 
+    public void setActivity(Activity activity) {
+        this.activityRef = new WeakReference<Activity>(activity);
+    }
 
+    public Activity getActivity() {
+        Activity activity = activityRef.get();
+        if (activity == null) {
+            SoomlaUtils.LogError(TAG, "Cannot get the current activity. Please, get sure you called `SoomlaApp.instance().setActivity(<YOUR ACTIVITY>)` before");
+        }
+        return activity;
+    }
 }
