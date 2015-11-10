@@ -110,6 +110,11 @@
         <patternset refid="excluded.from.compilation.soomlaandroidcore"/>
       </fileset>
     </copy>
+
+    <!-- Copy square-otto lib to build folder -->
+    <copy file="${basedir}/libs/square-otto-1.3.2.jar" todir="${basedir}/build"
+          overwrite="true" encoding="utf-8">
+    </copy>
   </target>
 
   <target name="clean.module.soomlaandroidcore" description="cleanup module">

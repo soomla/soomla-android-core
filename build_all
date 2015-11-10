@@ -6,7 +6,6 @@ cd $DIR
 filename="SoomlaAndroidCore"
 rm -rf build/
 mkdir build
-cp libs/* build/
 ant -buildfile soomla-android-core.xml -Dsoomla.filename="$filename" all
 
 cd - > /dev/null
