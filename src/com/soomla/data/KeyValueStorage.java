@@ -114,26 +114,37 @@ public class KeyValueStorage {
      * @return hashmap of key-val pairs
      */
     public static HashMap<String, String> getNonEncryptedQueryValues(String query) {
-        SoomlaUtils.LogDebug(TAG, "trying to fetch values for query: " + query);
+		return getNonEncryptedQueryValues(query, 0);
+	}
 
-        HashMap<String, String> vals = getDatabase().getQueryVals(query);
-        HashMap<String, String> results = new HashMap<String, String>();
-        for(String key : vals.keySet()) {
-            String val = vals.get(key);
-            if (val != null && !TextUtils.isEmpty(val)) {
-                try {
-                    val = getAESObfuscator().unobfuscateToString(val);
-                    results.put(key, val);
-                } catch (AESObfuscator.ValidationException e) {
-                    SoomlaUtils.LogError(TAG, e.getMessage());
-                }
-            }
-        }
+	/**
+	 * Retrieves key-val pairs according to given query, limiting amount of results returned.
+	 *
+	 * @param query query that determines what key-val pairs will be returned
+	 * @param limit max amount of key-val pairs returned
+	 * @return hashmap of key-val pairs
+	 */
+	public static HashMap<String, String> getNonEncryptedQueryValues(String query, int limit) {
+		SoomlaUtils.LogDebug(TAG, "trying to fetch values for query: " + query + (limit > 0? " with limit: " + limit : ""));
 
-        SoomlaUtils.LogDebug(TAG, "fetched " + results.size() + " results");
+		HashMap<String, String> vals = getDatabase().getQueryVals(query, limit);
+		HashMap<String, String> results = new HashMap<String, String>();
+		for(String key : vals.keySet()) {
+			String val = vals.get(key);
+			if (val != null && !TextUtils.isEmpty(val)) {
+				try {
+					val = getAESObfuscator().unobfuscateToString(val);
+					results.put(key, val);
+				} catch (AESObfuscator.ValidationException e) {
+					SoomlaUtils.LogError(TAG, e.getMessage());
+				}
+			}
+		}
 
-        return results;
-    }
+		SoomlaUtils.LogDebug(TAG, "fetched " + results.size() + " results");
+
+		return results;
+	}
 
     /**
      * Retrieves one key-val according to given query.

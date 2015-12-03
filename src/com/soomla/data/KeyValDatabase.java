@@ -99,20 +99,20 @@ public class KeyValDatabase {
      */
     public synchronized String getKeyVal(String key) {
         Cursor cursor = mStoreDB.query(KEYVAL_TABLE_NAME, KEYVAL_COLUMNS, KEYVAL_COLUMN_KEY
-                + "='" + key + "'",
-                null, null, null, null);
- 
+						+ "='" + key + "'",
+				null, null, null, null);
+
         if (cursor != null && cursor.moveToNext()) {
             int valColIdx = cursor.getColumnIndexOrThrow(KEYVAL_COLUMN_VAL);
             String ret = cursor.getString(valColIdx);
             cursor.close();
             return ret;
         }
-        
+
         if(cursor != null) {
         	cursor.close();
         }
-        
+
         return null;
     }
 
@@ -126,27 +126,31 @@ public class KeyValDatabase {
     }
 
     public synchronized HashMap<String, String> getQueryVals(String query) {
-        query = query.replace('*', '%');
-        Cursor cursor = mStoreDB.query(KEYVAL_TABLE_NAME, KEYVAL_COLUMNS, KEYVAL_COLUMN_KEY
-                + " LIKE '" + query + "'",
-                null, null, null, null);
-
-        HashMap<String, String> ret = new HashMap<String, String>();
-        while (cursor != null && cursor.moveToNext()) {
-            try {
-                int valColIdx = cursor.getColumnIndexOrThrow(KEYVAL_COLUMN_VAL);
-                int keyColIdx = cursor.getColumnIndexOrThrow(KEYVAL_COLUMN_KEY);
-                ret.put(cursor.getString(keyColIdx), cursor.getString(valColIdx));
-            } catch (IllegalArgumentException exx) {
-            }
-        }
-
-        if(cursor != null) {
-            cursor.close();
-        }
-
-        return ret;
+        return getQueryVals(query, 0);
     }
+
+	public synchronized HashMap<String, String> getQueryVals(String query, int limit) {
+		query = query.replace('*', '%');
+		Cursor cursor = mStoreDB.query(KEYVAL_TABLE_NAME, KEYVAL_COLUMNS, KEYVAL_COLUMN_KEY
+						+ " LIKE '" + query + "'",
+				null, null, null, null, limit <= 0? null : Integer.toString(limit));
+
+		HashMap<String, String> ret = new HashMap<String, String>();
+		while (cursor != null && cursor.moveToNext()) {
+			try {
+				int valColIdx = cursor.getColumnIndexOrThrow(KEYVAL_COLUMN_VAL);
+				int keyColIdx = cursor.getColumnIndexOrThrow(KEYVAL_COLUMN_KEY);
+				ret.put(cursor.getString(keyColIdx), cursor.getString(valColIdx));
+			} catch (IllegalArgumentException exx) {
+			}
+		}
+
+		if(cursor != null) {
+			cursor.close();
+		}
+
+		return ret;
+	}
 
     public synchronized String getQueryOne(String query) {
         query = query.replace('*', '%');
