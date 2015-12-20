@@ -39,12 +39,22 @@ public class KeyValDatabase {
      * @param context global information about the application environment
      */
     public KeyValDatabase(Context context) {
+        this(context, KeyValueStorage.SOOMLA_DATABASE_NAME);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param context global information about the application environment
+     * @param dbName name of the db to use
+     */
+    public KeyValDatabase(Context context, String dbName) {
 
         if (SoomlaConfig.DB_DELETE){
-            context.deleteDatabase(DATABASE_NAME);
+            context.deleteDatabase(dbName);
         }
 
-        mDatabaseHelper = new DatabaseHelper(context);
+        mDatabaseHelper = new DatabaseHelper(context, dbName);
         mStoreDB = mDatabaseHelper.getWritableDatabase();
     }
 
@@ -61,7 +71,17 @@ public class KeyValDatabase {
      * @param context global information about the application environment
      */
     public void purgeDatabase(Context context) {
-        context.deleteDatabase(DATABASE_NAME);
+        purgeDatabase(context, KeyValueStorage.SOOMLA_DATABASE_NAME);
+    }
+
+    /**
+     * Deletes the database completely!
+     *
+     * @param context global information about the application environment
+     * @param dbName name of the db to purge
+     */
+    public void purgeDatabase(Context context, String dbName) {
+        context.deleteDatabase(dbName);
     }
 
     /**
@@ -225,8 +245,8 @@ public class KeyValDatabase {
      */
     private class DatabaseHelper extends SQLiteOpenHelper{
 
-        public DatabaseHelper(Context context) {
-            super(context, DATABASE_NAME, null, 1);
+        public DatabaseHelper(Context context, String dbName) {
+            super(context, dbName, null, 1);
         }
 
         @Override
@@ -260,8 +280,6 @@ public class KeyValDatabase {
     /** Private Members **/
 
     private static final String TAG = "KeyValDatabase"; //used for Log messages
-
-    private static final String DATABASE_NAME  = "store.kv.db";
 
     private SQLiteDatabase mStoreDB;
 

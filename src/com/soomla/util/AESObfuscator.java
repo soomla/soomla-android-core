@@ -63,8 +63,20 @@ public class AESObfuscator {
      *    create this unique identifier.
      */
     public AESObfuscator(byte[] salt, String applicationId, String deviceId) {
+        this(salt, applicationId, deviceId, Soomla.SECRET);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param salt an array of random bytes to use for each (un)obfuscation
+     * @param applicationId application identifier, e.g. the package name
+     * @param deviceId device identifier. Use as many sources as possible to
+     *                 create this unique identifier.
+     * @param sec the secret to use for obfuscation
+     */
+    public AESObfuscator(byte[] salt, String applicationId, String deviceId, String sec) {
         byte[] passwordData = null;
-        String sec = Soomla.SECRET;
         if (sec.equals("SOOMLA_SEC")) {
             SoomlaUtils.LogError(TAG, "You didn't provide a SOOMLA secret!!! Stopping now!");
 
