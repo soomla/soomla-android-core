@@ -41,35 +41,7 @@ public class KeyValueStorage {
      * @return the value for the given key
      */
     public static String getValue(String key) {
-        return getValue(key, null);
-    }
-
-    /**
-     * Retrieves the value for the given key from the given storage
-     *
-     * @param key is the key in the key-val pair
-     * @param storageName is the name of the storage to get the value from
-     * @return the value for the given key
-     */
-    public static String getValue(String key, String storageName) {
-        SoomlaUtils.LogDebug(TAG, "trying to fetch a value for key: " + key + (storageName != null ? " from storage: " + storageName : ""));
-
-        KeyValueStorage kvs = getKeyValueStorage(storageName);
-        key = kvs.getAESObfuscator().obfuscateString(key);
-
-        String val = kvs.getDatabase().getKeyVal(key);
-
-        if (val != null && !TextUtils.isEmpty(val)) {
-            try {
-                val = kvs.getAESObfuscator().unobfuscateToString(val);
-            } catch (AESObfuscator.ValidationException e) {
-                SoomlaUtils.LogError(TAG, e.getMessage());
-                val = "";
-            }
-
-            SoomlaUtils.LogDebug(TAG, "the fetched value is " + val);
-        }
-        return val;
+        return getKeyValueStorage(null).get(key);
     }
 
     /**
@@ -79,23 +51,7 @@ public class KeyValueStorage {
      * @param val value to set in pair
      */
     public static void setNonEncryptedKeyValue(String key, String val) {
-        setNonEncryptedKeyValue(key, val, null);
-    }
-
-    /**
-     * Sets key-val pair in the database according to given key and val in the given storage.
-     *
-     * @param key key to set in pair
-     * @param val value to set in pair
-     * @param storageName is the name of the storage to set the value in
-     */
-    public static void setNonEncryptedKeyValue(String key, String val, String storageName) {
-        SoomlaUtils.LogDebug(TAG, "setting " + val + " for key: " + key + (storageName != null? " in storage: " + storageName : ""));
-
-        KeyValueStorage kvs = getKeyValueStorage(storageName);
-        val = kvs.getAESObfuscator().obfuscateString(val);
-
-        kvs.getDatabase().setKeyVal(key, val);
+        getKeyValueStorage(null).putForNonEncryptedKey(key, val);
     }
 
     /**
@@ -104,19 +60,7 @@ public class KeyValueStorage {
      * @param key the key to indicate which pair to delete
      */
     public static void deleteNonEncryptedKeyValue(String key) {
-        deleteNonEncryptedKeyValue(key, null);
-    }
-
-    /**
-     * Deletes key-val pair that has the given key from the given storage.
-     *
-     * @param key the key to indicate which pair to delete
-     * @param storageName is the name of the storage to delete the value from
-     */
-    public static void deleteNonEncryptedKeyValue(String key, String storageName) {
-        SoomlaUtils.LogDebug(TAG, "deleting " + key + (storageName != null? " from storage: " + storageName : ""));
-
-        getKeyValueStorage(storageName).getDatabase().deleteKeyVal(key);
+        getKeyValueStorage(null).removeForNonEncryptedKey(key);
     }
 
     /**
@@ -126,33 +70,7 @@ public class KeyValueStorage {
      * @return value of key-val pair
      */
     public static String getNonEncryptedKeyValue(String key) {
-        return getNonEncryptedKeyValue(key, null);
-    }
-
-    /**
-     * Retrieves the value of the key-val pair with the given key from the given storage.
-     *
-     * @param key key according to which val will be retrieved
-     * @param storageName is the name of the storage to retrieve the value from
-     * @return value of key-val pair
-     */
-    public static String getNonEncryptedKeyValue(String key, String storageName) {
-        SoomlaUtils.LogDebug(TAG, "trying to fetch a value for key: " + key + (storageName != null? " from storage: " + storageName : ""));
-
-        KeyValueStorage kvs = getKeyValueStorage(storageName);
-        String val = kvs.getDatabase().getKeyVal(key);
-
-        if (val != null && !TextUtils.isEmpty(val)) {
-            try {
-                val = kvs.getAESObfuscator().unobfuscateToString(val);
-            } catch (AESObfuscator.ValidationException e) {
-                SoomlaUtils.LogError(TAG, e.getMessage());
-                val = "";
-            }
-
-            SoomlaUtils.LogDebug(TAG, "the fetched value is " + val);
-        }
-        return val;
+        return getKeyValueStorage(null).getForNonEncryptedKey(key);
     }
 
     /**
@@ -162,19 +80,8 @@ public class KeyValueStorage {
      * @return hashmap of key-val pairs
      */
     public static HashMap<String, String> getNonEncryptedQueryValues(String query) {
-        return getNonEncryptedQueryValues(query, 0, null);
+        return getNonEncryptedQueryValues(query, 0);
     }
-
-    /**
-     * Retrieves key-val pairs according to given query from the given storage.
-     *
-     * @param query query that determines what key-val pairs will be returned
-     * @param storageName is the name of the storage to retrieve from
-     * @return hashmap of key-val pairs
-     */
-    public static HashMap<String, String> getNonEncryptedQueryValues(String query, String storageName) {
-		return getNonEncryptedQueryValues(query, 0, storageName);
-	}
 
     /**
      * Retrieves key-val pairs according to given query, limiting amount of results returned.
@@ -184,41 +91,8 @@ public class KeyValueStorage {
      * @return hashmap of key-val pairs
      */
     public static HashMap<String, String> getNonEncryptedQueryValues(String query, int limit) {
-        return getNonEncryptedQueryValues(query, limit, null);
+        return getKeyValueStorage(null).getForNonEncryptedQuery(query, limit);
     }
-
-	/**
-	 * Retrieves key-val pairs according to given query from the given storage, limiting amount of results returned.
-	 *
-	 * @param query query that determines what key-val pairs will be returned
-	 * @param limit max amount of key-val pairs returned
-     * @param storageName is the name of the storage to retrieve from
-	 * @return hashmap of key-val pairs
-	 */
-	public static HashMap<String, String> getNonEncryptedQueryValues(String query, int limit, String storageName) {
-		SoomlaUtils.LogDebug(TAG, "trying to fetch values for query: " + query +
-                (limit > 0? " with limit: " + limit : "") +
-                (storageName != null? " from storage: " + storageName : ""));
-
-        KeyValueStorage kvs = getKeyValueStorage(storageName);
-		HashMap<String, String> vals = kvs.getDatabase().getQueryVals(query, limit);
-		HashMap<String, String> results = new HashMap<String, String>();
-		for(String key : vals.keySet()) {
-			String val = vals.get(key);
-			if (val != null && !TextUtils.isEmpty(val)) {
-				try {
-					val = kvs.getAESObfuscator().unobfuscateToString(val);
-					results.put(key, val);
-				} catch (AESObfuscator.ValidationException e) {
-					SoomlaUtils.LogError(TAG, e.getMessage());
-				}
-			}
-		}
-
-		SoomlaUtils.LogDebug(TAG, "fetched " + results.size() + " results");
-
-		return results;
-	}
 
     /**
      * Retrieves one key-val according to given query.
@@ -227,31 +101,7 @@ public class KeyValueStorage {
      * @return string of key-val returned
      */
     public static String getOneForNonEncryptedQuery(String query) {
-        return getOneForNonEncryptedQuery(query, null);
-    }
-
-    /**
-     * Retrieves one key-val according to given query from the given storage.
-     *
-     * @param query query that determines what key-val will be returned
-     * @param storageName is the name of the storage to retrieve from
-     * @return string of key-val returned
-     */
-    public static String getOneForNonEncryptedQuery(String query, String storageName) {
-        SoomlaUtils.LogDebug(TAG, "trying to fetch one for query: " + query + (storageName != null? " from storage: " + storageName : ""));
-
-        KeyValueStorage kvs = getKeyValueStorage(storageName);
-        String val = kvs.getDatabase().getQueryOne(query);
-        if (val != null && !TextUtils.isEmpty(val)) {
-            try {
-                val = kvs.getAESObfuscator().unobfuscateToString(val);
-                return val;
-            } catch (AESObfuscator.ValidationException e) {
-                SoomlaUtils.LogError(TAG, e.getMessage());
-            }
-        }
-
-        return null;
+        return getKeyValueStorage(null).oneForNonEncryptedQuery(query);
     }
 
     /**
@@ -261,20 +111,7 @@ public class KeyValueStorage {
      * @return number of key-vals according the the given query
      */
     public static int getCountForNonEncryptedQuery(String query) {
-        return getCountForNonEncryptedQuery(query, null);
-    }
-
-    /**
-     * Retrieves the number key-vals according to given query from the given storage.
-     *
-     * @param query query that determines what number of key-vals
-     * @param storageName is the name of the storage to retrieve from
-     * @return number of key-vals according the the given query
-     */
-    public static int getCountForNonEncryptedQuery(String query, String storageName) {
-        SoomlaUtils.LogDebug(TAG, "trying to fetch count for query: " + query + (storageName != null? " from storage: " + storageName : ""));
-
-        return getKeyValueStorage(storageName).getDatabase().getQueryCount(query);
+        return getKeyValueStorage(null).countForNonEncryptedQuery(query);
     }
 
     /**
@@ -283,34 +120,7 @@ public class KeyValueStorage {
      * @return a List of unencrypted keys
      */
     public static List<String> getEncryptedKeys() {
-        return getEncryptedKeys(null);
-    }
-
-    /**
-     * Gets all keys in the given storage with no encryption
-     *
-     * @param storageName is the name of the storage to get from
-     * @return a List of unencrypted keys
-     */
-    public static List<String> getEncryptedKeys(String storageName) {
-        SoomlaUtils.LogDebug(TAG, "trying to fetch all keys" + (storageName != null ? " from storage: " + storageName : ""));
-
-        KeyValueStorage kvs = getKeyValueStorage(storageName);
-        List<String> encryptedKeys = kvs.getDatabase().getAllKeys();
-        List<String> resultKeys = new ArrayList<String>();
-
-        for (String encryptedKey : encryptedKeys) {
-            try {
-                String unencryptedKey = kvs.getAESObfuscator().unobfuscateToString(encryptedKey);
-                resultKeys.add(unencryptedKey);
-            } catch (AESObfuscator.ValidationException e) {
-                SoomlaUtils.LogDebug(TAG, e.getMessage());
-            } catch (RuntimeException e) {
-                SoomlaUtils.LogError(TAG, e.getMessage());
-            }
-        }
-
-        return resultKeys;
+        return getKeyValueStorage(null).getOnlyEncryptedKeys();
     }
 
     /**
@@ -320,24 +130,7 @@ public class KeyValueStorage {
      * @param val is the val in the key-val pair.
      */
     public static void setValue(String key, String val) {
-        setValue(key, val, null);
-    }
-
-    /**
-     * Sets the given value to the given key in the given storage.
-     *
-     * @param key is the key in the key-val pair.
-     * @param val is the val in the key-val pair.
-     * @param storageName is the name of the storage to set value to
-     */
-    public static void setValue(String key, String val, String storageName) {
-        SoomlaUtils.LogDebug(TAG, "setting " + val + " for key: " + key + (storageName != null? " in storage: " + storageName : ""));
-
-        KeyValueStorage kvs = getKeyValueStorage(storageName);
-        key = kvs.getAESObfuscator().obfuscateString(key);
-        val = kvs.getAESObfuscator().obfuscateString(val);
-
-        kvs.getDatabase().setKeyVal(key, val);
+        getKeyValueStorage(null).put(key, val);
     }
 
     /**
@@ -346,22 +139,7 @@ public class KeyValueStorage {
      * @param key is the key in the key-val pair.
      */
     public static void deleteKeyValue(String key) {
-        deleteKeyValue(key, null);
-    }
-
-    /**
-     * Deletes a key-val pair with the given key from the given storage.
-     *
-     * @param key is the key in the key-val pair.
-     * @param storageName is the name of the storage to delete value from
-     */
-    public static void deleteKeyValue(String key, String storageName) {
-        SoomlaUtils.LogDebug(TAG, "deleting " + key + (storageName != null? " from storage: " + storageName : ""));
-
-        KeyValueStorage kvs = getKeyValueStorage(storageName);
-        key = kvs.getAESObfuscator().obfuscateString(key);
-
-        kvs.getDatabase().deleteKeyVal(key);
+        getKeyValueStorage(null).remove(key);
     }
 
     /**
@@ -371,34 +149,19 @@ public class KeyValueStorage {
      * This method is mainly used for testing.
      */
     public static void purge() {
-        purge(null);
-    }
-
-    /**
-     * Purges the entire given storage
-     *
-     * NOTE: Use this method with care, it will erase all user data in storage
-     * This method is mainly used for testing.
-     *
-     * @param storageName is the name of the storage to purge
-     */
-    public static void purge(String storageName) {
-        SoomlaUtils.LogDebug(TAG, "purging database" + (storageName != null ? " in storage: " + storageName : ""));
-
-        getKeyValueStorage(storageName).getDatabase().purgeDatabaseEntries(SoomlaApp.getAppContext());
+        getKeyValueStorage(null).purgeStorage();
     }
 
     /**
      * Set the secret for the given storage
      *
      * @param storageName is the name of the storage to set secret for
-     * @param secret is the secret to set for the storage
+     * @param secret      is the secret to set for the storage
      */
-    public static void setSecretForStorage(String storageName, String secret) {
-        if (mStorageSecrets == null) {
-            mStorageSecrets = new HashMap<String, String>();
-        }
-        mStorageSecrets.put(storageName, secret);
+    public static KeyValueStorage initializeStorage(String storageName, String secret) {
+        KeyValueStorage kvs = getKeyValueStorage(storageName);
+        kvs.mSecret = secret;
+        return kvs;
     }
 
     /**
@@ -407,7 +170,7 @@ public class KeyValueStorage {
      * @param storageName is the name of the storage to return
      * @return key-value storage
      */
-    private static synchronized KeyValueStorage getKeyValueStorage(String storageName){
+    private static synchronized KeyValueStorage getKeyValueStorage(String storageName) {
 
         if (mKeyValStorages == null) {
             mKeyValStorages = new HashMap<String, KeyValueStorage>();
@@ -426,15 +189,158 @@ public class KeyValueStorage {
         return kvs;
     }
 
+    public void purgeStorage() {
+        SoomlaUtils.LogDebug(TAG, "purging database" + (mStorageName != null ? " in storage: " + mStorageName : ""));
+
+        getDatabase().purgeDatabaseEntries(SoomlaApp.getAppContext());
+    }
+
+    public void remove(String key) {
+        SoomlaUtils.LogDebug(TAG, "deleting " + key + (mStorageName != null ? " from storage: " + mStorageName : ""));
+
+        key = getAESObfuscator().obfuscateString(key);
+
+        getDatabase().deleteKeyVal(key);
+    }
+
+    public void put(String key, String val) {
+
+        SoomlaUtils.LogDebug(TAG, "setting " + val + " for key: " + key + (mStorageName != null ? " in storage: " + mStorageName : ""));
+
+        key = getAESObfuscator().obfuscateString(key);
+        val = getAESObfuscator().obfuscateString(val);
+
+        getDatabase().setKeyVal(key, val);
+    }
+
+    public String get(String key) {
+        SoomlaUtils.LogDebug(TAG, "trying to fetch a value for key: " + key + (mStorageName != null ? " from storage: " + mStorageName : ""));
+        key = getAESObfuscator().obfuscateString(key);
+
+        String val = getDatabase().getKeyVal(key);
+
+        if (val != null && !TextUtils.isEmpty(val)) {
+            try {
+                val = getAESObfuscator().unobfuscateToString(val);
+            } catch (AESObfuscator.ValidationException e) {
+                SoomlaUtils.LogError(TAG, e.getMessage());
+                val = "";
+            }
+
+            SoomlaUtils.LogDebug(TAG, "the fetched value is " + val);
+        }
+        return val;
+    }
+
+    public List<String> getOnlyEncryptedKeys() {
+
+        SoomlaUtils.LogDebug(TAG, "trying to fetch all keys" + (mStorageName != null ? " from storage: " + mStorageName : ""));
+
+        List<String> encryptedKeys = getDatabase().getAllKeys();
+        List<String> resultKeys = new ArrayList<String>();
+
+        for (String encryptedKey : encryptedKeys) {
+            try {
+                String unencryptedKey = getAESObfuscator().unobfuscateToString(encryptedKey);
+                resultKeys.add(unencryptedKey);
+            } catch (AESObfuscator.ValidationException e) {
+                SoomlaUtils.LogDebug(TAG, e.getMessage());
+            } catch (RuntimeException e) {
+                SoomlaUtils.LogError(TAG, e.getMessage());
+            }
+        }
+
+        return resultKeys;
+    }
+
+    public int countForNonEncryptedQuery(String query) {
+        SoomlaUtils.LogDebug(TAG, "trying to fetch count for query: " + query + (mStorageName != null ? " from storage: " + mStorageName : ""));
+
+        return getDatabase().getQueryCount(query);
+    }
+
+    public String oneForNonEncryptedQuery(String query) {
+
+        SoomlaUtils.LogDebug(TAG, "trying to fetch one for query: " + query + (mStorageName != null ? " from storage: " + mStorageName : ""));
+
+        String val = getDatabase().getQueryOne(query);
+        if (val != null && !TextUtils.isEmpty(val)) {
+            try {
+                val = getAESObfuscator().unobfuscateToString(val);
+                return val;
+            } catch (AESObfuscator.ValidationException e) {
+                SoomlaUtils.LogError(TAG, e.getMessage());
+            }
+        }
+
+        return null;
+    }
+
+    public HashMap<String, String> getForNonEncryptedQuery(String query, int limit) {
+        SoomlaUtils.LogDebug(TAG, "trying to fetch values for query: " + query +
+                (limit > 0 ? " with limit: " + limit : "") +
+                (mStorageName != null ? " from storage: " + mStorageName : ""));
+
+        HashMap<String, String> vals = getDatabase().getQueryVals(query, limit);
+        HashMap<String, String> results = new HashMap<String, String>();
+        for (String key : vals.keySet()) {
+            String val = vals.get(key);
+            if (val != null && !TextUtils.isEmpty(val)) {
+                try {
+                    val = getAESObfuscator().unobfuscateToString(val);
+                    results.put(key, val);
+                } catch (AESObfuscator.ValidationException e) {
+                    SoomlaUtils.LogError(TAG, e.getMessage());
+                }
+            }
+        }
+
+        SoomlaUtils.LogDebug(TAG, "fetched " + results.size() + " results");
+
+        return results;
+    }
+
+    public String getForNonEncryptedKey(String key) {
+
+        SoomlaUtils.LogDebug(TAG, "trying to fetch a value for key: " + key + (mStorageName != null ? " from storage: " + mStorageName : ""));
+
+        String val = getDatabase().getKeyVal(key);
+
+        if (val != null && !TextUtils.isEmpty(val)) {
+            try {
+                val = getAESObfuscator().unobfuscateToString(val);
+            } catch (AESObfuscator.ValidationException e) {
+                SoomlaUtils.LogError(TAG, e.getMessage());
+                val = "";
+            }
+
+            SoomlaUtils.LogDebug(TAG, "the fetched value is " + val);
+        }
+        return val;
+    }
+
+    public void removeForNonEncryptedKey(String key) {
+        SoomlaUtils.LogDebug(TAG, "deleting " + key + (mStorageName != null ? " from storage: " + mStorageName : ""));
+
+        getDatabase().deleteKeyVal(key);
+    }
+
+    public void putForNonEncryptedKey(String key, String val) {
+
+        SoomlaUtils.LogDebug(TAG, "setting " + val + " for key: " + key + (mStorageName != null ? " in storage: " + mStorageName : ""));
+
+        val = getAESObfuscator().obfuscateString(val);
+        getDatabase().setKeyVal(key, val);
+    }
+
     /**
      * Retrieves the key-val database.
      *
      * @return key-val database
      */
-    private synchronized KeyValDatabase getDatabase(){
-
+    private synchronized KeyValDatabase getDatabase() {
         if (mKvDatabase == null) {
-            mKvDatabase = new KeyValDatabase(SoomlaApp.getAppContext(), mDBName);
+            mKvDatabase = new KeyValDatabase(SoomlaApp.getAppContext(), mStorageName);
         }
 
         return mKvDatabase;
@@ -445,45 +351,45 @@ public class KeyValueStorage {
      *
      * @return AESObfuscator
      */
-    private AESObfuscator getAESObfuscator(){
+    private AESObfuscator getAESObfuscator() {
         if (mObfuscator == null) {
             mObfuscator = new AESObfuscator(SoomlaConfig.obfuscationSalt,
                     SoomlaApp.getAppContext().getPackageName(),
                     SoomlaUtils.deviceId(),
-                    getSecretForDB(mDBName));
+                    getSecretForDB());
         }
 
         return mObfuscator;
     }
 
-    private String getSecretForDB(String dbName) {
-        if (mDBName.equals(SOOMLA_DATABASE_NAME)) {
+    private String getSecretForDB() {
+        if (mStorageName.equals(SOOMLA_DATABASE_NAME)) {
             return Soomla.SECRET;
         }
-        if (mStorageSecrets != null) {
-            String secret = mStorageSecrets.get(dbName);
-            if (secret != null) {
-                return secret;
-            }
+        if (mSecret != null) {
+            return mSecret;
+        } else {
+            throw new UnsupportedOperationException("You didn't initialize storage or the secret is missing. You must initialize it with a secret. dbName: " + mStorageName);
         }
-        return dbName + new String(new char[] {'.', 's', '0', 'm', 'e', '5', 't', 'r', '1', 'n', 'g', '4', 's', '3', 'c', 'r', 'e', '7'});
     }
 
 
-    private KeyValueStorage(String dbName) {
-        mDBName = dbName;
+    private KeyValueStorage(String storageName) {
+        mStorageName = storageName;
     }
 
 
-    /** Private Members **/
+    /**
+     * Private Members
+     **/
 
     private static final String TAG = "SOOMLA KeyValueStorage"; //used for Log Messages
-    public static final String SOOMLA_DATABASE_NAME  = "store.kv.db";
+    public static final String SOOMLA_DATABASE_NAME = "store.kv.db";
 
     private AESObfuscator mObfuscator;
     private KeyValDatabase mKvDatabase;
-    private String mDBName;
+    private String mStorageName;
+    private String mSecret;
 
     private static Map<String, KeyValueStorage> mKeyValStorages;
-    private static Map<String, String> mStorageSecrets;
 }
