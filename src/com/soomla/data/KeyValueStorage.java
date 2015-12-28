@@ -265,6 +265,10 @@ public class KeyValueStorage {
         return null;
     }
 
+    public HashMap<String, String> getForNonEncryptedQuery(String query) {
+        return getForNonEncryptedQuery(query, 0);
+    }
+
     public HashMap<String, String> getForNonEncryptedQuery(String query, int limit) {
         SoomlaUtils.LogDebug(TAG, "trying to fetch values for query: " + query +
                 (limit > 0 ? " with limit: " + limit : "") +
