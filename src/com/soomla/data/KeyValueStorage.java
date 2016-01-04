@@ -24,6 +24,7 @@ import com.soomla.SoomlaConfig;
 import com.soomla.SoomlaUtils;
 import com.soomla.util.AESObfuscator;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -166,7 +167,7 @@ public class KeyValueStorage {
 
     public KeyValueStorage(String storageName, String secret) {
         if (TextUtils.isEmpty(secret)) {
-            throw new UnsupportedOperationException("You must initialize KeyValueStorage with a secret. storageName: " + mStorageName);
+            throw new InvalidParameterException("You must initialize KeyValueStorage with a secret. storageName: " + mStorageName);
         }
 
         mStorageName = storageName;
@@ -263,10 +264,6 @@ public class KeyValueStorage {
         }
 
         return null;
-    }
-
-    public HashMap<String, String> getForNonEncryptedQuery(String query) {
-        return getForNonEncryptedQuery(query, 0);
     }
 
     public HashMap<String, String> getForNonEncryptedQuery(String query, int limit) {
