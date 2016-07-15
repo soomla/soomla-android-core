@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="android-core:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/android_core_jar</output-path>
+    <root id="archive" name="android-core.jar">
+      <element id="module-output" name="android-core_main" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/android-core/libs/keeva.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

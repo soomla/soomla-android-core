@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/soomla-android-core.iml" filepath="$PROJECT_DIR$/.idea/soomla-android-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android-core/android-core.iml" filepath="$PROJECT_DIR$/.idea/modules/android-core/android-core.iml" group="android-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android-core/android-core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/android-core/android-core_main.iml" group="android-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android-core/android-core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/android-core/android-core_test.iml" group="android-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/soomla-android-core.iml" filepath="$PROJECT_DIR$/.idea/modules/soomla-android-core.iml" />
     </modules>
   </component>
 </project>
-

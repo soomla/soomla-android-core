@@ -54,7 +54,7 @@ public abstract class SoomlaEntity<T> {
      * Generates an instance of <code>SoomlaEntity</code> from the given <code>JSONObject</code>.
      *
      * @param jsonObject A JSONObject representation of the wanted <code>SoomlaEntity</code>.
-     * @throws org.json.JSONException
+     * @throws JSONException
      */
     public SoomlaEntity(JSONObject jsonObject) throws JSONException {
         mName = jsonObject.optString(JSONConsts.SOOM_ENTITY_NAME);
